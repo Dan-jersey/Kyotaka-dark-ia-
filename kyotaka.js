@@ -2,50 +2,59 @@ import fetch from 'node-fetch';
 import readlineSync from 'readline-sync';
 import chalk from 'chalk';
 
-const sysPrompt = "Tu es KYOTAKA, une IA dark, hacker style. Sobre, concis et stylé, réponds en français.";
-
-const API_KEY = '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';
-const MODEL = 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo';
+const sysPrompt = "Tu es KYOTAKA, IA dark hacker style Zphisher. Sobre, concis, stylé, réponds en français.";
+const API_KEY = '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';
+const MODEL = 'gpt-4o-mini';
 
 async function ask(message) {
-  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type':'application/json',
-      'Authorization': `Bearer ${API_KEY}`
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      messages: [
-        { role: 'system', content: sysPrompt },
-        { role: 'user', content: message }
-      ],
-      temperature: 0.9,
-      top_p: 0.95,
-      max_tokens: 800
-    })
+  try {
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        messages: [
+          { role: 'system', content: sysPrompt },
+          { role: 'user', content: message }
+        ],
+        temperature: 0.9,
+        top_p: 0.95,
+        max_tokens: 800
+      })
+    });
+    const data = await r.json();
+    return data?.choices?.[0]?.message?.content || '(vide)';
+  } catch (e) {
+    return `(erreur API : ${e.message})`;
+  }
+}
+
+function typeEffect(text,color=chalk.green,delay=15){
+  return new Promise(resolve=>{
+    let i=0;
+    const interval = setInterval(()=>{
+      process.stdout.write(color(text[i]||''));
+      i++;
+      if(i>text.length){ clearInterval(interval); process.stdout.write('\n'); resolve(); }
+    }, delay);
   });
-  const data = await r.json();
-  return data?.choices?.[0]?.message?.content || '(vide)';
 }
 
 console.clear();
-console.log(chalk.green.bold("🜏 KYOTAKA CLI • IA Dark"));
-console.log(chalk.gray("Mode hacker • mobile/termux friendly"));
+console.log(chalk.cyan.bold("┌─────────────────────────────┐"));
+console.log(chalk.cyan.bold("│  KYOTAKA CLI • IA Dark ZPH  │"));
+console.log(chalk.cyan.bold("└─────────────────────────────┘"));
 console.log(chalk.gray("Tape 'exit' pour quitter.\n"));
 
 (async ()=>{
   while(true){
-    const input = readlineSync.question(chalk.cyan('> '));
+    const input = readlineSync.question(chalk.yellow('> '));
     if(input.toLowerCase() === 'exit') break;
-    
-    console.log(chalk.yellowBright("⚡ KYOTAKA réfléchit..."));
+    await typeEffect("⚡ KYOTAKA réfléchit...\n", chalk.magenta, 30);
     const reply = await ask(input);
-
-    // effet hacker style, ligne par ligne
-    reply.split('\n').forEach(line=>{
-      console.log(chalk.green(line));
-    });
-    console.log('');
+    await typeEffect(reply+'\n', chalk.green, 15);
   }
 })();
