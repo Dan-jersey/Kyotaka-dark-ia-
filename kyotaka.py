@@ -1,64 +1,55 @@
-import fetch from 'node-fetch';
-import readlineSync from 'readline-sync';
-import chalk from 'chalk';
+import requests
+import sys
+import time
 
-const sysPrompt = "Tu es KYOTAKA, IA dark hacker style Zphisher. Sobre, concis, stylé, réponds en français.";
-const API_KEY = 'sSRslpZw77sypspGcA58RLOO3QiHllp35MiKcih0uFd1GTPDBE10SfiROTdO';
-const MODEL = 'gpt-4o-mini';
+API_KEY = "sSRslpZw77sypspGcA58RLOO3QiHllp35MiKcih0uFd1GTPDBE10SfiROTdO"
+MODEL = "gpt-4o-mini"
+SYS_PROMPT = "Tu es KYOTAKA, IA dark hacker style Zphisher. Sobre, concis, stylé, réponds en français."
 
-async function ask(message) {
-  try {
-    const r = await fetch('https://api.modelslab.com/uncensored_chat_completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: 'system', content: sysPrompt },
-          { role: 'user', content: message },
-        ],
-        temperature: 0.9,
-        top_p: 0.95,
-        max_tokens: 800,
-      }),
-    });
-    const data = await r.json();
-    return data?.choices?.[0]?.message?.content || '(vide)';
-  } catch (e) {
-    return `(erreur API : ${e.message})`;
-  }
-}
+def type_effect(text, delay=0.02):
+    for c in text:
+        print(c, end='', flush=True)
+        time.sleep(delay)
+    print()
 
-function typeEffect(text, color = chalk.green, delay = 15) {
-  return new Promise(resolve => {
-    let i = 0;
-    const interval = setInterval(() => {
-      process.stdout.write(color(text[i] || ''));
-      i++;
-      if (i > text.length) {
-        clearInterval(interval);
-        process.stdout.write('\n');
-        resolve();
-      }
-    }, delay);
-  });
-}
+def ask(message):
+    try:
+        headers = {
+            "Authorization": f"Bearer {API_KEY}",
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "model": MODEL,
+            "messages": [
+                {"role": "system", "content": SYS_PROMPT},
+                {"role": "user", "content": message}
+            ],
+            "temperature": 0.9,
+            "top_p": 0.95,
+            "max_tokens": 800
+        }
+        r = requests.post("https://api.modelslab.com/uncensored_chat_completions", json=payload, headers=headers)
+        data = r.json()
+        return data.get("choices", [{}])[0].get("message", {}).get("content", "(vide)")
+    except Exception as e:
+        return f"(erreur API : {str(e)})"
 
-console.clear();
-console.log(chalk.cyan.bold("┌─────────────────────────────┐"));
-console.log(chalk.cyan.bold("│  KYOTAKA CLI • IA Dark ZPH  │"));
-console.log(chalk.cyan.bold("└─────────────────────────────┘"));
-console.log(chalk.gray("Tape 'exit' pour quitter.\n"));
+def main():
+    print("┌─────────────────────────────┐")
+    print("│  KYOTAKA CLI • IA Dark ZPH  │")
+    print("└─────────────────────────────┘")
+    print("Tape 'exit' pour quitter.\n")
+    
+    while True:
+        try:
+            msg = input("> ")
+            if msg.lower() == "exit":
+                break
+            type_effect("⚡ KYOTAKA réfléchit...\n", 0.03)
+            reply = ask(msg)
+            type_effect(reply + "\n", 0.02)
+        except KeyboardInterrupt:
+            sys.exit()
 
-(async () => {
-  while (true) {
-    const input = readlineSync.question(chalk.yellow('> '));
-    if (input.toLowerCase() === 'exit') break;
-    await typeEffect("⚡ KYOTAKA réfléchit...\n", chalk.magenta, 30);
-    const reply = await ask(input);
-    await typeEffect(reply + '\n', chalk.green, 15);
-  }
-})();
+if __name__ == "__main__":
+    main()
