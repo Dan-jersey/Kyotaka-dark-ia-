@@ -1,0 +1,14 @@
+{
+  "name": "kyotaka-termux",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "KYOTAKA CLI • IA Dark OpenRouter",
+  "main": "kyotaka.js",
+  "scripts": {
+    "start": "node kyotaka.js"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2",
+    "readline-sync": "^1.4.10"
+  }
+}
